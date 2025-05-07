@@ -1,3 +1,4 @@
+import FeaturedCourses from './FeaturedCourses';
 import HeroSection from './HeroSection';
 import Navbar from './Navbar';
 
@@ -7,6 +8,7 @@ const HomePage = () => {
       <Navbar />
       <main className="flex-grow"> 
         <HeroSection />
+        <FeaturedCourses />
       </main>
     </div>
   );
