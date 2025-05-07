@@ -1,6 +1,7 @@
 import FeaturedCourses from './FeaturedCourses';
 import HeroSection from './HeroSection';
 import Navbar from './Navbar';
+import PlatformSection from './PlatformSection';
 
 const HomePage = () => {
   return (
@@ -9,6 +10,7 @@ const HomePage = () => {
       <main className="flex-grow"> 
         <HeroSection />
         <FeaturedCourses />
+        <PlatformSection />
       </main>
     </div>
   );
