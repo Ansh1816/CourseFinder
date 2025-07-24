@@ -400,6 +400,10 @@ const formatPriceToTwoDecimals = (price) => {
   return `${currencySymbol}${numericValue.toFixed(2)}`;
 };
 
+const roundRatingToOneDecimal = (rating) => {
+  return parseFloat(rating.toFixed(1));
+};
+
 const DUMMY_COURSES = (() => {
   const courses = [];
   
@@ -470,7 +474,7 @@ const DUMMY_COURSES = (() => {
       title: title,
       platform: "edX",
       instructor: universities[universityIndex],
-      rating: 4.0 + (i % 10) / 10,
+      rating: roundRatingToOneDecimal(4.0 + (i % 10) / 10),
       students: i % 3 === 0 ? `${i + 5}K+` : `${i * 10 + 5}K+`,
       price: price,
       image: getRandomImage(imageIndex),
@@ -521,7 +525,7 @@ const DUMMY_COURSES = (() => {
       title: `${titles[titleIndex]}${i > 9 ? " " + (i - 9) : ""}`,
       platform: "Coursera",
       instructor: instructors[instructorIndex],
-      rating: 4.3 + (i % 7) / 10,
+      rating: roundRatingToOneDecimal(4.3 + (i % 7) / 10),
       students: `${(i + 2) * 100}K+`,
       price: price,
       image: getRandomImage(imageIndex),
@@ -572,7 +576,7 @@ const DUMMY_COURSES = (() => {
       title: `${titles[titleIndex]}${i > 9 ? " " + (i - 9) : ""}`,
       platform: "Udemy",
       instructor: instructors[instructorIndex],
-      rating: 4.2 + (i % 8) / 10,
+      rating: roundRatingToOneDecimal(4.2 + (i % 8) / 10),
       students: `${(i + 1) * 50}K+`,
       price: price,
       image: getRandomImage(imageIndex),
@@ -676,6 +680,7 @@ export const fetchCourseDetails = async (courseId) => {
       const formattedCourse = {
         ...course,
         price: formatPriceToTwoDecimals(course.price),
+        rating: roundRatingToOneDecimal(course.rating), 
         instructorName: course.instructor,
         instructorTitle: course.platform === "edX" ? "Professor" : "Instructor",
         instructorImage: `https://images.unsplash.com/photo-${1550000000000 + (parseInt(courseId.replace(/\D/g, '')) * 1000)}?auto=format&fit=crop&w=300&q=80`,
@@ -718,6 +723,7 @@ export const fetchCourseDetails = async (courseId) => {
       return formattedCourse;
     }
     
+    // If course not found, return a default course
     return {
       id: courseId,
       title: "Course Not Found",
@@ -725,7 +731,7 @@ export const fetchCourseDetails = async (courseId) => {
       instructorName: "Unknown Instructor",
       instructorTitle: "Instructor",
       instructorImage: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=300&auto=format&fit=crop",
-      rating: 0,
+      rating: 0.0, // Rounded to 1 decimal
       students: "0",
       price: "N/A",
       image: getRandomImage(),

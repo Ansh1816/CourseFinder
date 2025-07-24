@@ -180,12 +180,14 @@ const CoursesPage = () => {
   };
 
   const renderStars = (rating) => {
+    const formattedRating = typeof rating === 'number' ? rating.toFixed(1) : rating;
+    
     return (
       <div className="flex items-center">
         <span className="text-yellow-500 mr-1">
           <Star size={16} fill="#FBBF24" />
         </span>
-        <span className="text-sm font-medium text-gray-700">{rating}</span>
+        <span className="text-sm font-medium text-gray-700">{formattedRating}</span>
       </div>
     );
   };

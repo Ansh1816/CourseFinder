@@ -141,26 +141,31 @@ const CourseDetailPage = () => {
   };
 
   const renderStars = (rating) => {
+    // Ensure rating is displayed with exactly 1 decimal place
+    const formattedRating = typeof rating === 'number' ? rating.toFixed(1) : rating;
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
     return (
-      <div className="flex">
-        {[...Array(fullStars)].map((_, i) => (
-          <Star key={`full-${i}`} className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-        ))}
-        {hasHalfStar && (
-          <div className="relative">
-            <Star className="h-5 w-5 text-gray-300 fill-gray-300" />
-            <div className="absolute top-0 left-0 overflow-hidden w-1/2">
-              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+      <div className="flex items-center">
+        <div className="flex">
+          {[...Array(fullStars)].map((_, i) => (
+            <Star key={`full-${i}`} className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+          ))}
+          {hasHalfStar && (
+            <div className="relative">
+              <Star className="h-5 w-5 text-gray-300 fill-gray-300" />
+              <div className="absolute top-0 left-0 overflow-hidden w-1/2">
+                <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+              </div>
             </div>
-          </div>
-        )}
-        {[...Array(emptyStars)].map((_, i) => (
-          <Star key={`empty-${i}`} className="h-5 w-5 text-gray-300 fill-gray-300" />
-        ))}
+          )}
+          {[...Array(emptyStars)].map((_, i) => (
+            <Star key={`empty-${i}`} className="h-5 w-5 text-gray-300 fill-gray-300" />
+          ))}
+        </div>
+        <span className="ml-2 text-lg font-semibold">{formattedRating}</span>
       </div>
     );
   };
@@ -253,7 +258,6 @@ const CourseDetailPage = () => {
                 <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center">
                     {renderStars(course.rating)}
-                    <span className="ml-1 text-sm font-medium">({course.rating})</span>
                   </div>
                   <div className="flex items-center">
                     <Users className="h-4 w-4 text-gray-500 mr-1" />
