@@ -30,7 +30,15 @@ const CoursesPage = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const searchDebounceTimer = useRef(null);
   const [totalMatchingCourses, setTotalMatchingCourses] = useState(0);
-  
+  const [filterOptions, setFilterOptions] = useState({
+    platform: [],
+    level: [],
+    category: [],
+    price: ["Free", "Paid"]
+  });
+  const [allCoursesData, setAllCoursesData] = useState([]);
+
+  // Handle URL search param changes
   useEffect(() => {
     const searchFromUrl = searchParams.get("search");
     const pageFromUrl = parseInt(searchParams.get("page") || "1");
@@ -45,6 +53,7 @@ const CoursesPage = () => {
     }
   }, [searchParams]);
 
+  // Handle debounced search term changes
   useEffect(() => {
     if (debouncedSearchTerm !== searchParams.get("search")) {
       const newParams = new URLSearchParams();
@@ -57,11 +66,50 @@ const CoursesPage = () => {
     }
   }, [debouncedSearchTerm]);
   
+  // Fetch all courses data once on component mount for filter options
+  useEffect(() => {
+    const fetchAllCoursesData = async () => {
+      try {
+        const allCourses = await fetchAllCourses({ 
+          limit: MAX_COURSES,
+          page: 1,
+          search: "" // No search filter to get all courses
+        });
+        
+        setAllCoursesData(allCourses);
+        
+        // Extract filter options from all courses
+        const platforms = [...new Set(allCourses.map(course => course.platform))];
+        const levels = [...new Set(allCourses.map(course => course.level))];
+        const categories = [...new Set(allCourses.map(course => course.category))];
+        
+        setFilterOptions({
+          platform: platforms,
+          level: levels,
+          category: categories,
+          price: ["Free", "Paid"]
+        });
+        
+        console.log("Fetched filter options from all courses:", {
+          platforms: platforms.length,
+          levels: levels.length,
+          categories: categories.length
+        });
+      } catch (err) {
+        console.error("Failed to fetch all courses data for filters:", err);
+      }
+    };
+    
+    fetchAllCoursesData();
+  }, []);
+  
+  // Fetch courses when page, search term, or filters change
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
       
       try {
+        // First, get the total count of courses matching the search and filters
         const allMatchingCourses = await fetchAllCourses({ 
           limit: MAX_COURSES, 
           page: 1,
@@ -69,10 +117,12 @@ const CoursesPage = () => {
           filters: filters 
         });
         
+        // Calculate total pages based on all matching courses
         const totalMatching = allMatchingCourses.length;
         setTotalMatchingCourses(totalMatching);
         setTotalPages(Math.max(1, Math.ceil(totalMatching / COURSES_PER_PAGE)));
         
+        // Now get just the current page of courses
         const fetchedCourses = await fetchAllCourses({ 
           limit: COURSES_PER_PAGE,
           page: page,
@@ -82,6 +132,7 @@ const CoursesPage = () => {
         
         setCourses(fetchedCourses);
         
+        // Calculate if there are more courses to load
         const startIndex = (page - 1) * COURSES_PER_PAGE;
         const nextPageStartIndex = page * COURSES_PER_PAGE;
         setHasMore(nextPageStartIndex < totalMatching);
@@ -95,7 +146,7 @@ const CoursesPage = () => {
     };
 
     fetchCourses();
-  }, [searchParams, page, filters]); 
+  }, [searchParams, page, filters]);
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -208,31 +259,20 @@ const CoursesPage = () => {
       }
       return updatedFilters;
     });
-  };
-
-  const getFilterOptions = (key) => {
-    const values = courses
-      .map(course => course[key])
-      .filter(Boolean)
-      .reduce((acc, val) => {
-        if (!acc.includes(val)) acc.push(val);
-        return acc;
-      }, []);
     
-    return values;
-  };
-
-  const filterOptions = {
-    platform: getFilterOptions("platform"),
-    level: getFilterOptions("level"),
-    category: getFilterOptions("category"),
-    price: ["Free", "Paid"]
+    // Reset to page 1 when filters change
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("page", "1");
+      return newParams;
+    });
+    setPage(1);
   };
   
   const getPlatformCounts = () => {
     const counts = {};
     filterOptions.platform.forEach(platform => {
-      counts[platform] = courses.filter(c => c.platform === platform).length;
+      counts[platform] = allCoursesData.filter(c => c.platform === platform).length;
     });
     return counts;
   };
