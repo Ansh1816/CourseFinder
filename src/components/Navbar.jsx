@@ -12,7 +12,6 @@ const Navbar = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  // Initialize search term from URL if on courses page
   useEffect(() => {
     if (location.pathname === "/courses") {
       const searchFromUrl = searchParams.get("search");
@@ -39,8 +38,6 @@ const Navbar = () => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/courses?search=${encodeURIComponent(searchTerm.trim())}`);
-      
-      // Only clear search term if not on the courses page
       if (location.pathname !== "/courses") {
         setIsMenuOpen(false);
       }

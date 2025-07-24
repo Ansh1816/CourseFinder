@@ -54,9 +54,11 @@ const CourseDetailPage = () => {
         const courseData = await fetchCourseDetails(courseId);
 
         if (courseData) {
-          const platform = courseId.startsWith("edx_") ? "edX" :
+          // Use the platform from the course data directly
+          const platform = courseData.platform || 
+                         (courseId.startsWith("edx_") ? "edX" :
                          courseId.startsWith("coursera_") ? "Coursera" :
-                         courseId.startsWith("udemy_") ? "Udemy" : "Unknown";
+                         courseId.startsWith("udemy_") ? "Udemy" : "Unknown");
 
           const processedCourse = {
             id: courseId,
@@ -99,8 +101,10 @@ const CourseDetailPage = () => {
         setLoading(false);
       }
     };
-    
-    getCourseDetails();
+
+    if (courseId) {
+      getCourseDetails();
+    }
   }, [courseId, currentUser]);
 
   const handleEnroll = () => {

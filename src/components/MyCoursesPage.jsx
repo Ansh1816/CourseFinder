@@ -58,7 +58,8 @@ const MyCoursesPage = () => {
           return;
         }
 
-        const allCourses = await fetchAllCourses({ limit: 50 });
+        // Fetch all available courses with the 100 course limit
+        const allCourses = await fetchAllCourses({ limit: 100 });
 
         console.log("Fetched courses for My Courses page:", allCourses.length);
         console.log("User enrollments:", userEnrollments.length);

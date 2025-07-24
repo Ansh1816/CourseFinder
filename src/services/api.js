@@ -1,7 +1,5 @@
 
 export const fetchEdxCourses = async (params = {}) => {
-  console.log("Generating edX courses with params:", params);
-  
   try {
     const page = params.page || 1;
     const limit = params.limit || 20;
@@ -389,85 +387,389 @@ export const fetchUdemyCourseDetails = async (courseId) => {
   
   return getUdemySampleCourseDetails(courseId);
 };
+const MAX_COURSES = 200;
+
+// Helper function to format price to 2 decimal places
+const formatPriceToTwoDecimals = (price) => {
+  if (price === 'Free') return 'Free';
+  
+  // Extract numeric value and format to 2 decimal places
+  const match = price.match(/^(\$|€|£)?(\d+(\.\d+)?)$/);
+  if (!match) return price;
+  
+  const currencySymbol = match[1] || '';
+  const numericValue = parseFloat(match[2]);
+  return `${currencySymbol}${numericValue.toFixed(2)}`;
+};
+
+// Create a fixed set of dummy courses (200 courses total)
+const DUMMY_COURSES = (() => {
+  const courses = [];
+  
+  // Generate 100 edX courses (instead of 60)
+  for (let i = 0; i < 100; i++) {
+    const courseId = `edx_course_${i + 1}`;
+    const universityIndex = i % 10;
+    const subjectIndex = Math.floor(i / 5) % 13;
+    
+    const universities = [
+      "Harvard University", "MIT", "Stanford University", "Berkeley", 
+      "Princeton", "Oxford", "Cambridge", "Yale", "Columbia", "Cornell"
+    ];
+    
+    const subjects = [
+      "Computer Science", "Data Science", "Business", "Economics", 
+      "Physics", "Mathematics", "Biology", "Psychology", "History", 
+      "Political Science", "Engineering", "AI", "Machine Learning"
+    ];
+    
+    const levels = ["Beginner", "Intermediate", "Advanced", "All Levels"];
+    const durations = ["4 weeks", "6 weeks", "8 weeks", "12 weeks", "16 weeks", "Self-paced"];
+    
+    const levelIndex = i % levels.length;
+    const durationIndex = i % durations.length;
+    const rawPrice = i % 3 === 0 ? "Free" : `$${(i % 15) * 10 + 9.99}`;
+    const price = formatPriceToTwoDecimals(rawPrice);
+    const imageIndex = i % 27; // Based on IMAGE_COLLECTION length
+    
+    const courseNames = {
+      "Computer Science": [
+        "Introduction to Programming", 
+        "Algorithms and Data Structures", 
+        "Software Engineering", 
+        "Web Development", 
+        "Mobile App Development"
+      ],
+      "Data Science": [
+        "Data Analytics Fundamentals", 
+        "Machine Learning Basics", 
+        "Big Data Processing", 
+        "Statistical Analysis", 
+        "Data Visualization"
+      ],
+      "Business": [
+        "Business Strategy", 
+        "Marketing Fundamentals", 
+        "Financial Analysis", 
+        "Entrepreneurship", 
+        "Management Skills"
+      ]
+    };
+    
+    const defaultNames = [
+      "Fundamentals", 
+      "Advanced Concepts", 
+      "Practical Applications", 
+      "Theory and Practice", 
+      "Professional Skills"
+    ];
+    
+    const subject = subjects[subjectIndex];
+    const courseNameOptions = courseNames[subject] || defaultNames;
+    const courseName = courseNameOptions[i % courseNameOptions.length];
+    const title = `${subject} ${i + 1}: ${courseName}`;
+    
+    courses.push({
+      id: courseId,
+      title: title,
+      platform: "edX",
+      instructor: universities[universityIndex],
+      rating: 4.0 + (i % 10) / 10,
+      students: i % 3 === 0 ? `${i + 5}K+` : `${i * 10 + 5}K+`,
+      price: price,
+      image: getRandomImage(imageIndex),
+      category: subject,
+      level: levels[levelIndex],
+      duration: durations[durationIndex],
+      description: `Learn ${subject} with ${universities[universityIndex]}. This comprehensive course covers both theory and practice.`
+    });
+  }
+  
+  // Generate 50 Coursera courses (instead of 20)
+  for (let i = 0; i < 50; i++) {
+    const courseId = `coursera_course_${i + 1}`;
+    
+    const instructors = [
+      "Andrew Ng", "University of Michigan", "UC Berkeley", 
+      "Wharton School", "deeplearning.ai", "Google", "IBM", 
+      "Stanford University", "University of London", "Duke University"
+    ];
+    
+    const categories = [
+      "Computer Science", "Data Science", "Business", 
+      "Programming", "Blockchain", "AI", "Marketing", 
+      "Finance", "Leadership", "Design"
+    ];
+    
+    const titles = [
+      "Machine Learning",
+      "Python for Everybody",
+      "Blockchain Fundamentals",
+      "Business Analytics Specialization",
+      "Deep Learning Specialization",
+      "Digital Marketing Professional Certificate",
+      "Financial Markets",
+      "Data Structures and Algorithms",
+      "UX Design Professional Certificate",
+      "Leadership Development"
+    ];
+    
+    const instructorIndex = i % instructors.length;
+    const categoryIndex = i % categories.length;
+    const titleIndex = i % titles.length;
+    const rawPrice = i % 4 === 0 ? "Free" : `$${(i % 10) * 10 + 49}`;
+    const price = formatPriceToTwoDecimals(rawPrice);
+    const imageIndex = (i + 30) % 27; // Offset for variety
+    
+    courses.push({
+      id: courseId,
+      title: `${titles[titleIndex]}${i > 9 ? " " + (i - 9) : ""}`,
+      platform: "Coursera",
+      instructor: instructors[instructorIndex],
+      rating: 4.3 + (i % 7) / 10,
+      students: `${(i + 2) * 100}K+`,
+      price: price,
+      image: getRandomImage(imageIndex),
+      category: categories[categoryIndex],
+      level: i % 2 === 0 ? "Intermediate" : "All Levels",
+      duration: i % 3 === 0 ? `${i + 4} weeks` : "Self-paced",
+      description: `A comprehensive ${categories[categoryIndex]} course offered by ${instructors[instructorIndex]}.`
+    });
+  }
+  
+  // Generate 50 Udemy courses (instead of 20)
+  for (let i = 0; i < 50; i++) {
+    const courseId = `udemy_course_${i + 1}`;
+    
+    const instructors = [
+      "Rob Percival", "Jose Portilla", "Angela Yu", 
+      "Maximilian Schwarzmüller", "Andrei Neagoie", "Colt Steele", 
+      "Dr. Angela Yu", "Stephen Grider", "Jonas Schmedtmann", "Brad Traversy"
+    ];
+    
+    const categories = [
+      "Web Development", "Programming", "Marketing", 
+      "Design", "Cybersecurity", "Mobile Development", 
+      "Game Development", "Data Science", "Photography", "Music"
+    ];
+    
+    const titles = [
+      "The Complete Web Developer Course",
+      "Python Bootcamp",
+      "Digital Marketing Course",
+      "UI/UX Design Bootcamp",
+      "Ethical Hacking From Scratch",
+      "iOS App Development Bootcamp",
+      "Unity Game Development",
+      "Data Science A-Z",
+      "Photography Masterclass",
+      "Music Theory Comprehensive"
+    ];
+    
+    const instructorIndex = i % instructors.length;
+    const categoryIndex = i % categories.length;
+    const titleIndex = i % titles.length;
+    const rawPrice = `$${(i % 20) + 9.99}`;
+    const price = formatPriceToTwoDecimals(rawPrice);
+    const imageIndex = (i + 15) % 27; // Offset for variety
+    
+    courses.push({
+      id: courseId,
+      title: `${titles[titleIndex]}${i > 9 ? " " + (i - 9) : ""}`,
+      platform: "Udemy",
+      instructor: instructors[instructorIndex],
+      rating: 4.2 + (i % 8) / 10,
+      students: `${(i + 1) * 50}K+`,
+      price: price,
+      image: getRandomImage(imageIndex),
+      category: categories[categoryIndex],
+      level: i % 3 === 0 ? "Beginner" : i % 3 === 1 ? "Intermediate" : "All Levels",
+      duration: `${(i % 15) + 10} hours`,
+      description: `Learn ${categories[categoryIndex]} from scratch with expert instructor ${instructors[instructorIndex]}.`
+    });
+  }
+  
+  return courses;
+})();
+
+// Replace the fetchAllCourses function
 export const fetchAllCourses = async (params = {}) => {
   try {
     console.log("fetchAllCourses called with params:", params);
     
-    if (params.page && params.page > 1) {
-      console.log(`Pagination request: Page ${params.page}, limit ${params.limit || 20}`);
-      const edxCourses = await fetchEdxCourses({
-        ...params,
-        limit: params.limit || 20,
-        page: params.page
-      });
-      console.log(`Pagination page ${params.page}: Fetched ${edxCourses.length} edX courses`);
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+    const search = params.search || "";
+    const filters = params.filters || {};
+    
+    // Simulate API delay (shorter delay when just counting courses)
+    const isCountRequest = limit === MAX_COURSES && page === 1;
+    await new Promise(resolve => setTimeout(resolve, isCountRequest ? 100 : 300));
+    
+    // Filter courses based on search term and other filters
+    let filteredCourses = [...DUMMY_COURSES];
+    
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filteredCourses = filteredCourses.filter(course => 
+        course.title.toLowerCase().includes(searchLower) ||
+        course.instructor.toLowerCase().includes(searchLower) ||
+        course.category.toLowerCase().includes(searchLower) ||
+        course.platform.toLowerCase().includes(searchLower) ||
+        course.description.toLowerCase().includes(searchLower)
+      );
       
-      const processedEdxCourses = edxCourses.map(course => ({
-        id: `edx_${course.id || course.uuid}`,
-        title: course.name || course.title,
-        platform: "edX",
-        instructor: course.owners?.[0]?.name || "edX Instructor",
-        rating: course.rating || 4.5,
-        students: course.enrollment_count || "10K+",
-        price: course.price || "Free",
-        image: course.media?.image?.raw || course.image || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
-        category: course.subjects?.[0] || "Computer Science",
-        level: course.level_type || "Beginner",
-        duration: course.length || "8 weeks",
-        description: course.short_description || "",
-        originalData: course,
-      }));
-      
-      return processedEdxCourses;
+      console.log(`Search for "${search}" found ${filteredCourses.length} matching courses`);
     }
     
-    console.log("Initial fetch - getting courses from all platforms");
-    const [edxCourses, courseraCourses, udemyCourses] = await Promise.all([
-      fetchEdxCourses({...params, limit: params.limit || 10, page: 1}),
-      fetchCourseraCourses(params),
-      fetchUdemyCourses(params),
-    ]);
-    console.log(`Fetched: ${edxCourses.length} edX, ${courseraCourses.length} Coursera, ${udemyCourses.length} Udemy courses`);
-    const processedEdxCourses = edxCourses.map(course => ({
-      id: `edx_${course.id || course.uuid}`,
-      title: course.name || course.title,
-      platform: "edX",
-      instructor: course.owners?.[0]?.name || "edX Instructor",
-      rating: course.rating || 4.5,
-      students: course.enrollment_count || "10K+",
-      price: course.price || "Free",
-      image: course.media?.image?.raw || course.image || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
-      category: course.subjects?.[0] || "Computer Science",
-      level: course.level_type || "Beginner",
-      duration: course.length || "8 weeks",
-      description: course.short_description || "",
-      originalData: course,
-    }));
-    return [...processedEdxCourses, ...courseraCourses, ...udemyCourses];
+    // Apply additional filters if provided
+    if (filters) {
+      // Filter by platform
+      if (filters.platform && filters.platform.length > 0) {
+        filteredCourses = filteredCourses.filter(course => 
+          filters.platform.includes(course.platform)
+        );
+      }
+      
+      // Filter by level
+      if (filters.level && filters.level.length > 0) {
+        filteredCourses = filteredCourses.filter(course => 
+          filters.level.includes(course.level)
+        );
+      }
+      
+      // Filter by category
+      if (filters.category && filters.category.length > 0) {
+        filteredCourses = filteredCourses.filter(course => 
+          filters.category.includes(course.category)
+        );
+      }
+      
+      // Filter by price
+      if (filters.price && filters.price.length > 0) {
+        filteredCourses = filteredCourses.filter(course => {
+          if (filters.price.includes("Free") && course.price === "Free") {
+            return true;
+          }
+          if (filters.price.includes("Paid") && course.price !== "Free") {
+            return true;
+          }
+          return false;
+        });
+      }
+      
+      console.log(`After applying filters, found ${filteredCourses.length} matching courses`);
+    }
+    
+    // For count requests, return all matching courses
+    if (isCountRequest) {
+      console.log(`Returning count of all ${filteredCourses.length} matching courses`);
+      return filteredCourses;
+    }
+    
+    // Calculate pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = Math.min(startIndex + limit, filteredCourses.length);
+    
+    // Return paginated results
+    const paginatedCourses = filteredCourses.slice(startIndex, endIndex);
+    
+    console.log(`Returning ${paginatedCourses.length} courses for page ${page} (limit: ${limit})`);
+    return paginatedCourses;
   } catch (error) {
-    console.error("Error fetching all courses:", error);
-    return [...getEdxSampleCourses(), ...getCourseraSampleCourses(), ...getUdemySampleCourses()];
+    console.error("Error fetching courses:", error);
+    return [];
   }
 };
 export const fetchCourseDetails = async (courseId) => {
   try {
     console.log(`Fetching course details for: ${courseId}`);
     
-    if (courseId.startsWith("edx_")) {
-      const edxId = courseId.replace("edx_", "");
-      console.log(`Fetching edX course details for ID: ${edxId}`);
-      return await fetchEdxCourseDetails(edxId);
-    } else if (courseId.startsWith("coursera_")) {
-      return await fetchCourseraCourseDetails(courseId);
-    } else if (courseId.startsWith("udemy_")) {
-      return await fetchUdemyCourseDetails(courseId);
-    } else {
-      console.error("Unknown course platform for ID:", courseId);
-      return getSampleCourseDetails(courseId);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Find the course in our dummy data
+    const course = DUMMY_COURSES.find(c => c.id === courseId);
+    
+    if (course) {
+      // Make sure price is properly formatted
+      const formattedCourse = {
+        ...course,
+        price: formatPriceToTwoDecimals(course.price),
+        // Add additional course detail fields
+        instructorName: course.instructor,
+        instructorTitle: course.platform === "edX" ? "Professor" : "Instructor",
+        instructorImage: `https://images.unsplash.com/photo-${1550000000000 + (parseInt(courseId.replace(/\D/g, '')) * 1000)}?auto=format&fit=crop&w=300&q=80`,
+        language: "English",
+        lastUpdated: new Date(Date.now() - (parseInt(courseId.replace(/\D/g, '')) * 1000000)).toISOString().split('T')[0],
+        courseUrl: `https://www.${course.platform.toLowerCase()}.com/course/${courseId}`,
+        whatYouWillLearn: [
+          `Master fundamental theories and principles of ${course.category}`,
+          `Apply ${course.category} concepts to real-world problems`,
+          "Develop critical thinking and analytical skills",
+          `Complete ${parseInt(courseId.replace(/\D/g, '')) % 2 === 0 ? "individual" : "group"} projects to reinforce learning`,
+          `Use industry-standard tools and methodologies in ${course.category}`
+        ],
+        curriculum: [
+          {
+            title: "Introduction to Concepts",
+            lessons: ["Foundations", "History and Context", "Basic Principles"]
+          },
+          {
+            title: "Core Techniques",
+            lessons: ["Methodology", "Tools and Applications", "Case Studies"]
+          },
+          {
+            title: "Advanced Topics",
+            lessons: ["Emerging Trends", "Research Areas", "Future Directions"]
+          },
+          {
+            title: "Practical Applications",
+            lessons: ["Project Planning", "Implementation", "Evaluation", "Presentation"]
+          }
+        ],
+        requirements: [
+          `Basic understanding of ${course.category.includes("Programming") || course.category.includes("Computer") ? "programming concepts" : "the field"}`,
+          "Dedication to learning new concepts",
+          "Access to required software and resources",
+          parseInt(courseId.replace(/\D/g, '')) % 2 === 0 ? `Prior experience with ${["Python", "R", "Excel", "Statistics", "Mathematics"][parseInt(courseId.replace(/\D/g, '')) % 5]} is recommended` : null
+        ].filter(Boolean)
+      };
+      
+      return formattedCourse;
     }
+    
+    // If course not found, return a default course
+    return {
+      id: courseId,
+      title: "Course Not Found",
+      platform: "Unknown",
+      instructorName: "Unknown Instructor",
+      instructorTitle: "Instructor",
+      instructorImage: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=300&auto=format&fit=crop",
+      rating: 0,
+      students: "0",
+      price: "N/A",
+      image: getRandomImage(),
+      category: "General",
+      level: "All Levels",
+      duration: "Self-paced",
+      description: "This course could not be found in our catalog.",
+      courseUrl: "#",
+      language: "English",
+      lastUpdated: "Unknown",
+      whatYouWillLearn: ["No course details available"],
+      curriculum: [{ title: "No curriculum available", lessons: [] }],
+      requirements: ["No requirements specified"]
+    };
   } catch (error) {
     console.error(`Error fetching course details for ${courseId}:`, error);
-    return getSampleCourseDetails(courseId);
+    return {
+      id: courseId,
+      title: "Error Loading Course",
+      description: "There was an error loading this course. Please try again later."
+    };
   }
 };
 const getEdxSampleCourses = () => [
