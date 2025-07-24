@@ -389,11 +389,9 @@ export const fetchUdemyCourseDetails = async (courseId) => {
 };
 const MAX_COURSES = 200;
 
-// Helper function to format price to 2 decimal places
 const formatPriceToTwoDecimals = (price) => {
   if (price === 'Free') return 'Free';
   
-  // Extract numeric value and format to 2 decimal places
   const match = price.match(/^(\$|€|£)?(\d+(\.\d+)?)$/);
   if (!match) return price;
   
@@ -402,11 +400,9 @@ const formatPriceToTwoDecimals = (price) => {
   return `${currencySymbol}${numericValue.toFixed(2)}`;
 };
 
-// Create a fixed set of dummy courses (200 courses total)
 const DUMMY_COURSES = (() => {
   const courses = [];
   
-  // Generate 100 edX courses (instead of 60)
   for (let i = 0; i < 100; i++) {
     const courseId = `edx_course_${i + 1}`;
     const universityIndex = i % 10;
@@ -430,7 +426,7 @@ const DUMMY_COURSES = (() => {
     const durationIndex = i % durations.length;
     const rawPrice = i % 3 === 0 ? "Free" : `$${(i % 15) * 10 + 9.99}`;
     const price = formatPriceToTwoDecimals(rawPrice);
-    const imageIndex = i % 27; // Based on IMAGE_COLLECTION length
+    const imageIndex = i % 27; 
     
     const courseNames = {
       "Computer Science": [
@@ -485,7 +481,6 @@ const DUMMY_COURSES = (() => {
     });
   }
   
-  // Generate 50 Coursera courses (instead of 20)
   for (let i = 0; i < 50; i++) {
     const courseId = `coursera_course_${i + 1}`;
     
@@ -519,7 +514,7 @@ const DUMMY_COURSES = (() => {
     const titleIndex = i % titles.length;
     const rawPrice = i % 4 === 0 ? "Free" : `$${(i % 10) * 10 + 49}`;
     const price = formatPriceToTwoDecimals(rawPrice);
-    const imageIndex = (i + 30) % 27; // Offset for variety
+    const imageIndex = (i + 30) % 27; 
     
     courses.push({
       id: courseId,
@@ -537,7 +532,6 @@ const DUMMY_COURSES = (() => {
     });
   }
   
-  // Generate 50 Udemy courses (instead of 20)
   for (let i = 0; i < 50; i++) {
     const courseId = `udemy_course_${i + 1}`;
     
@@ -571,7 +565,7 @@ const DUMMY_COURSES = (() => {
     const titleIndex = i % titles.length;
     const rawPrice = `$${(i % 20) + 9.99}`;
     const price = formatPriceToTwoDecimals(rawPrice);
-    const imageIndex = (i + 15) % 27; // Offset for variety
+    const imageIndex = (i + 15) % 27; 
     
     courses.push({
       id: courseId,
@@ -592,7 +586,6 @@ const DUMMY_COURSES = (() => {
   return courses;
 })();
 
-// Replace the fetchAllCourses function
 export const fetchAllCourses = async (params = {}) => {
   try {
     console.log("fetchAllCourses called with params:", params);
@@ -602,14 +595,11 @@ export const fetchAllCourses = async (params = {}) => {
     const search = params.search || "";
     const filters = params.filters || {};
     
-    // Simulate API delay (shorter delay when just counting courses)
     const isCountRequest = limit === MAX_COURSES && page === 1;
     await new Promise(resolve => setTimeout(resolve, isCountRequest ? 100 : 300));
     
-    // Filter courses based on search term and other filters
     let filteredCourses = [...DUMMY_COURSES];
     
-    // Apply search filter
     if (search) {
       const searchLower = search.toLowerCase();
       filteredCourses = filteredCourses.filter(course => 
@@ -623,30 +613,25 @@ export const fetchAllCourses = async (params = {}) => {
       console.log(`Search for "${search}" found ${filteredCourses.length} matching courses`);
     }
     
-    // Apply additional filters if provided
     if (filters) {
-      // Filter by platform
       if (filters.platform && filters.platform.length > 0) {
         filteredCourses = filteredCourses.filter(course => 
           filters.platform.includes(course.platform)
         );
       }
       
-      // Filter by level
       if (filters.level && filters.level.length > 0) {
         filteredCourses = filteredCourses.filter(course => 
           filters.level.includes(course.level)
         );
       }
       
-      // Filter by category
       if (filters.category && filters.category.length > 0) {
         filteredCourses = filteredCourses.filter(course => 
           filters.category.includes(course.category)
         );
       }
       
-      // Filter by price
       if (filters.price && filters.price.length > 0) {
         filteredCourses = filteredCourses.filter(course => {
           if (filters.price.includes("Free") && course.price === "Free") {
@@ -662,17 +647,14 @@ export const fetchAllCourses = async (params = {}) => {
       console.log(`After applying filters, found ${filteredCourses.length} matching courses`);
     }
     
-    // For count requests, return all matching courses
     if (isCountRequest) {
       console.log(`Returning count of all ${filteredCourses.length} matching courses`);
       return filteredCourses;
     }
     
-    // Calculate pagination
     const startIndex = (page - 1) * limit;
     const endIndex = Math.min(startIndex + limit, filteredCourses.length);
     
-    // Return paginated results
     const paginatedCourses = filteredCourses.slice(startIndex, endIndex);
     
     console.log(`Returning ${paginatedCourses.length} courses for page ${page} (limit: ${limit})`);
@@ -686,18 +668,14 @@ export const fetchCourseDetails = async (courseId) => {
   try {
     console.log(`Fetching course details for: ${courseId}`);
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    // Find the course in our dummy data
     const course = DUMMY_COURSES.find(c => c.id === courseId);
     
     if (course) {
-      // Make sure price is properly formatted
       const formattedCourse = {
         ...course,
         price: formatPriceToTwoDecimals(course.price),
-        // Add additional course detail fields
         instructorName: course.instructor,
         instructorTitle: course.platform === "edX" ? "Professor" : "Instructor",
         instructorImage: `https://images.unsplash.com/photo-${1550000000000 + (parseInt(courseId.replace(/\D/g, '')) * 1000)}?auto=format&fit=crop&w=300&q=80`,
@@ -740,7 +718,6 @@ export const fetchCourseDetails = async (courseId) => {
       return formattedCourse;
     }
     
-    // If course not found, return a default course
     return {
       id: courseId,
       title: "Course Not Found",

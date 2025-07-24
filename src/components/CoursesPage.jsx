@@ -31,7 +31,6 @@ const CoursesPage = () => {
   const searchDebounceTimer = useRef(null);
   const [totalMatchingCourses, setTotalMatchingCourses] = useState(0);
   
-  // Handle URL search param changes
   useEffect(() => {
     const searchFromUrl = searchParams.get("search");
     const pageFromUrl = parseInt(searchParams.get("page") || "1");
@@ -46,49 +45,43 @@ const CoursesPage = () => {
     }
   }, [searchParams]);
 
-  // Handle debounced search term changes
   useEffect(() => {
     if (debouncedSearchTerm !== searchParams.get("search")) {
       const newParams = new URLSearchParams();
       if (debouncedSearchTerm) {
         newParams.set("search", debouncedSearchTerm);
       }
-      newParams.set("page", "1"); // Reset to page 1 on new search
+      newParams.set("page", "1"); 
       setSearchParams(newParams);
       setPage(1);
     }
   }, [debouncedSearchTerm]);
   
-  // Fetch courses when page or search term changes
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
       
       try {
-        // First, get the total count of courses matching the search and filters
         const allMatchingCourses = await fetchAllCourses({ 
-          limit: MAX_COURSES, // Get all matching courses to count them
+          limit: MAX_COURSES, 
           page: 1,
           search: searchParams.get("search") || "",
-          filters: filters // Pass the filters to the API
+          filters: filters 
         });
         
-        // Calculate total pages based on all matching courses
         const totalMatching = allMatchingCourses.length;
         setTotalMatchingCourses(totalMatching);
         setTotalPages(Math.max(1, Math.ceil(totalMatching / COURSES_PER_PAGE)));
         
-        // Now get just the current page of courses
         const fetchedCourses = await fetchAllCourses({ 
           limit: COURSES_PER_PAGE,
           page: page,
           search: searchParams.get("search") || "",
-          filters: filters // Pass the filters to the API
+          filters: filters 
         });
         
         setCourses(fetchedCourses);
         
-        // Calculate if there are more courses to load
         const startIndex = (page - 1) * COURSES_PER_PAGE;
         const nextPageStartIndex = page * COURSES_PER_PAGE;
         setHasMore(nextPageStartIndex < totalMatching);
@@ -102,7 +95,7 @@ const CoursesPage = () => {
     };
 
     fetchCourses();
-  }, [searchParams, page, filters]); // Add filters as a dependency
+  }, [searchParams, page, filters]); 
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -117,7 +110,6 @@ const CoursesPage = () => {
       return newParams;
     });
     
-    // Scroll to top when changing pages
     window.scrollTo(0, 0);
   };
 
@@ -125,15 +117,13 @@ const CoursesPage = () => {
     const value = e.target.value;
     setSearchTerm(value);
     
-    // Clear any existing timer
     if (searchDebounceTimer.current) {
       clearTimeout(searchDebounceTimer.current);
     }
     
-    // Set a new timer to update the debounced search term
     searchDebounceTimer.current = setTimeout(() => {
       setDebouncedSearchTerm(value);
-    }, 500); // 500ms debounce
+    }, 500); 
   };
   
   const clearSearch = () => {
@@ -249,50 +239,40 @@ const CoursesPage = () => {
   
   const platformCounts = getPlatformCounts();
   
-  // Generate page numbers for pagination
   const generatePageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5;
     
-    if (totalPages <= maxPagesToShow) {
-      // Show all pages if total pages are less than maxPagesToShow
+    if (totalPages <= maxPagesToShow) { 
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Always include first page
       pageNumbers.push(1);
       
-      // Calculate start and end of page range around current page
       let startPage = Math.max(2, page - 1);
       let endPage = Math.min(totalPages - 1, page + 1);
       
-      // Adjust if at the beginning
       if (page <= 2) {
         endPage = 3;
       }
       
-      // Adjust if at the end
       if (page >= totalPages - 1) {
         startPage = totalPages - 2;
       }
       
-      // Add ellipsis if needed
       if (startPage > 2) {
         pageNumbers.push('...');
       }
       
-      // Add middle pages
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
       
-      // Add ellipsis if needed
       if (endPage < totalPages - 1) {
         pageNumbers.push('...');
       }
       
-      // Always include last page
       pageNumbers.push(totalPages);
     }
     
@@ -573,7 +553,6 @@ const CoursesPage = () => {
                         </div>
                       )}
                       
-                      {/* Pagination Controls */}
                       {totalPages > 1 && (
                         <div className="flex justify-center mt-8">
                           <nav className="flex items-center space-x-2">
