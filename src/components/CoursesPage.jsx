@@ -24,7 +24,7 @@ const CoursesPage = () => {
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1"));
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [totalPages, setTotalPages] = useState(5); // Initial estimate
+  const [totalPages, setTotalPages] = useState(5);
   const MAX_COURSES = 200;
   const COURSES_PER_PAGE = 20;
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
@@ -38,7 +38,6 @@ const CoursesPage = () => {
   });
   const [allCoursesData, setAllCoursesData] = useState([]);
 
-  // Handle URL search param changes
   useEffect(() => {
     const searchFromUrl = searchParams.get("search");
     const pageFromUrl = parseInt(searchParams.get("page") || "1");
@@ -53,7 +52,6 @@ const CoursesPage = () => {
     }
   }, [searchParams]);
 
-  // Handle debounced search term changes
   useEffect(() => {
     if (debouncedSearchTerm !== searchParams.get("search")) {
       const newParams = new URLSearchParams();
@@ -66,19 +64,18 @@ const CoursesPage = () => {
     }
   }, [debouncedSearchTerm]);
   
-  // Fetch all courses data once on component mount for filter options
+
   useEffect(() => {
     const fetchAllCoursesData = async () => {
       try {
         const allCourses = await fetchAllCourses({ 
           limit: MAX_COURSES,
           page: 1,
-          search: "" // No search filter to get all courses
+          search: "" 
         });
         
         setAllCoursesData(allCourses);
         
-        // Extract filter options from all courses
         const platforms = [...new Set(allCourses.map(course => course.platform))];
         const levels = [...new Set(allCourses.map(course => course.level))];
         const categories = [...new Set(allCourses.map(course => course.category))];
@@ -103,13 +100,11 @@ const CoursesPage = () => {
     fetchAllCoursesData();
   }, []);
   
-  // Fetch courses when page, search term, or filters change
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
       
       try {
-        // First, get the total count of courses matching the search and filters
         const allMatchingCourses = await fetchAllCourses({ 
           limit: MAX_COURSES, 
           page: 1,
@@ -117,12 +112,10 @@ const CoursesPage = () => {
           filters: filters 
         });
         
-        // Calculate total pages based on all matching courses
         const totalMatching = allMatchingCourses.length;
         setTotalMatchingCourses(totalMatching);
         setTotalPages(Math.max(1, Math.ceil(totalMatching / COURSES_PER_PAGE)));
         
-        // Now get just the current page of courses
         const fetchedCourses = await fetchAllCourses({ 
           limit: COURSES_PER_PAGE,
           page: page,
@@ -132,7 +125,6 @@ const CoursesPage = () => {
         
         setCourses(fetchedCourses);
         
-        // Calculate if there are more courses to load
         const startIndex = (page - 1) * COURSES_PER_PAGE;
         const nextPageStartIndex = page * COURSES_PER_PAGE;
         setHasMore(nextPageStartIndex < totalMatching);
@@ -260,7 +252,6 @@ const CoursesPage = () => {
       return updatedFilters;
     });
     
-    // Reset to page 1 when filters change
     setSearchParams(prev => {
       const newParams = new URLSearchParams(prev);
       newParams.set("page", "1");
