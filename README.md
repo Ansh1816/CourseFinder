@@ -1,12 +1,52 @@
-# React + Vite
+# Course Finder 🎓
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Course Finder is a modern web application that helps users discover and explore courses based on their interests. It provides a clean, responsive interface for searching, filtering, and viewing course details, making it easier to find the right learning opportunities.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+https://course-finder-chi.vercel.app/
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* Browse a collection of courses
+* Search courses by keywords
+* Filter courses by category
+* Responsive and user-friendly interface
+* Fast loading and smooth navigation
+* Modern UI with clean design
+
+## 🛠️ Tech Stack
+
+* React.js
+* Vite
+* JavaScript (ES6+)
+* HTML5
+* CSS3
+* Responsive Design
+
+## 📂 Installation
+
+```bash
+git clone <repository-url>
+cd course-finder
+npm install
+npm run dev
+```
+
+## 🌐 Deployment
+
+The project is deployed on Vercel and can be accessed here:
+
+https://course-finder-chi.vercel.app/
+
+## 📌 Future Improvements
+
+* User authentication
+* Course bookmarking
+* Personalized course recommendations
+* Advanced filtering and sorting
+* Backend integration with a database
+
+## 👨‍💻 Author
+
+**Ansh**
